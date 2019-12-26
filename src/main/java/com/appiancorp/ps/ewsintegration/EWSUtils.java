@@ -1,0 +1,130 @@
+package com.appiancorp.ps.ewsintegration;
+
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+
+import org.apache.log4j.Logger;
+
+import com.appiancorp.suiteapi.content.ContentConstants;
+import com.appiancorp.suiteapi.content.ContentService;
+import com.appiancorp.suiteapi.knowledge.Document;
+
+import microsoft.exchange.webservices.data.core.ExchangeService;
+import microsoft.exchange.webservices.data.core.WebProxy;
+import microsoft.exchange.webservices.data.core.enumeration.property.BodyType;
+import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
+import microsoft.exchange.webservices.data.credential.WebCredentials;
+import microsoft.exchange.webservices.data.credential.WebProxyCredentials;
+import microsoft.exchange.webservices.data.property.complex.MessageBody;
+
+public class EWSUtils {
+  private static final Logger LOG = Logger.getLogger(EWSUtils.class);
+
+  private String serviceUrl;
+  private String domain;
+  private String username;
+  private String password;
+
+  private String proxyURL;
+  private Integer proxyPort;
+  private String proxyDomain;
+  private String proxyUsername;
+  private String proxyPassword;
+  private boolean isConnectedViaProxy = false;
+
+  public EWSUtils(String serviceUrl, String domain, String username, String password,
+    String proxyURL, Integer proxyPort, String proxyDomain, String proxyUsername, String proxyPassword,
+    boolean isConnectedViaProxy) {
+
+    this.serviceUrl = serviceUrl;
+    this.domain = domain;
+    this.username = username;
+    this.password = password;
+    this.proxyURL = proxyURL;
+    this.proxyPort = proxyPort;
+    this.proxyDomain = proxyDomain;
+    this.proxyUsername = proxyUsername;
+    this.proxyPassword = proxyPassword;
+    this.isConnectedViaProxy = isConnectedViaProxy;
+  }
+
+  public ExchangeService authService(ExchangeService service) throws URISyntaxException {
+
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Starting to poll for new email from " + username + " @ " + serviceUrl);
+      LOG.debug("Passed Parameters: ");
+      LOG.debug("serviceUrl: " + serviceUrl);
+      LOG.debug("domain: " + domain);
+      LOG.debug("username: " + username);
+      LOG.debug("proxyURL: " + proxyURL);
+      LOG.debug("proxyPort: " + proxyPort);
+      LOG.debug("proxyDomain: " + proxyDomain);
+      LOG.debug("proxyUsername: " + proxyUsername);
+    }
+
+    WebCredentials credentials;
+
+    if (domain != null && !"".equalsIgnoreCase(domain)) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Setting Username, password, domain");
+      }
+      credentials = new WebCredentials(username, password, domain);
+    } else {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Setting Username, password");
+      }
+      credentials = new WebCredentials(username, password);
+    }
+
+    if (isConnectedViaProxy) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Setting Proxy");
+      }
+      WebProxy webProxy = new WebProxy(proxyURL, proxyPort,
+        new WebProxyCredentials(proxyUsername, proxyPassword, proxyDomain));
+      service.setWebProxy(webProxy);
+    }
+
+    service.setCredentials(credentials);
+    service.setUrl(new URI(serviceUrl));
+
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Service should be ready: " + service);
+    }
+
+    return service;
+  }
+
+  public static void sendEmail(ContentService cs, ExchangeService service, String[] recipients, String subject, boolean bodyTypeHTML,
+    String body, Long[] attachments)
+    throws Exception {
+
+    EmailMessage message = new EmailMessage(service);
+    message.setSubject(subject);
+    message.setBody(new MessageBody(bodyTypeHTML ? BodyType.HTML : BodyType.Text, body));
+
+    for (String recipient : recipients) {
+      message.getToRecipients().add(recipient);
+    }
+
+    for (Long attachment : attachments) {
+
+      Document doc = (Document) cs.getVersion(attachment, ContentConstants.VERSION_CURRENT);
+
+      String fileName = cs.getInternalFilename(cs.getVersionId(attachment, ContentConstants.VERSION_CURRENT));
+      File file = new File(fileName);
+      message.getAttachments().addFileAttachment(doc.getDisplayName(), Files.readAllBytes(file.toPath()));
+
+    }
+
+    message.sendAndSaveCopy();
+
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Email Sent Succesfully.");
+    }
+
+  }
+
+}

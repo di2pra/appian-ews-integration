@@ -1,0 +1,12 @@
+<appian-plugin name="${project.name}" key="${project.artifactId}">
+
+  <plugin-info>
+    <description>${project.description}</description>
+    <vendor name="${project.organization.name}" url="${project.organization.url}" />
+    <version>${project.version}</version>
+    <application-version min="19.4" />
+  </plugin-info>
+  
+  <smart-service name="EWS Send Email" key="SendEMail" class="com.appiancorp.ps.ewsintegration.SendEmailSmartService" />
+
+</appian-plugin>
