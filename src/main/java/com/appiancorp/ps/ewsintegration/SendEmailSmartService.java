@@ -23,7 +23,7 @@ import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion
 @ConnectivityServices
 @Order({
   "ServiceUrl", "Domain", "ScsExternalSystemKey", "ConnectedViaProxy", "ProxyURL", "ProxyPort", "ProxyDomain",
-  "Recipients", "Subject", "BodyTypeHtml", "Body", "Attachements", "ErrorOccurred", "ErrorMessage" })
+  "Recipients", "CCRecipients", "BCCRecipients", "Subject", "BodyTypeHtml", "Body", "Attachements", "ErrorOccurred", "ErrorMessage" })
 public class SendEmailSmartService extends AppianSmartService {
 
   private static final Logger LOG = Logger.getLogger(SendEmailSmartService.class);
@@ -48,6 +48,8 @@ public class SendEmailSmartService extends AppianSmartService {
   private boolean bodyTypeHTML = false;
   private String body;
   private String[] recipients;
+  private String[] ccRecipients;
+  private String[] bccRecipients;
   private Long[] attachments;
 
   // local variables
@@ -138,7 +140,7 @@ public class SendEmailSmartService extends AppianSmartService {
 
     try {
 
-      EWSUtils.sendEmail(cs, service, recipients, subject, bodyTypeHTML, body, attachments);
+      EWSUtils.sendEmail(cs, service, recipients, ccRecipients, bccRecipients, subject, bodyTypeHTML, body, attachments);
 
     } catch (Exception ex) {
       LOG.error("Error sending email through EWS", ex);
@@ -195,6 +197,18 @@ public class SendEmailSmartService extends AppianSmartService {
   @Name("Recipients")
   public void setRecipients(String[] val) {
     this.recipients = val;
+  }
+
+  @Input(required = Required.OPTIONAL)
+  @Name("CCRecipients")
+  public void setCCRecipients(String[] val) {
+    this.ccRecipients = val;
+  }
+
+  @Input(required = Required.OPTIONAL)
+  @Name("BCCRecipients")
+  public void setBccRecipients(String[] val) {
+    this.bccRecipients = val;
   }
 
   @Input(required = Required.OPTIONAL)

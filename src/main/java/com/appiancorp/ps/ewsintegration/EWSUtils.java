@@ -97,7 +97,8 @@ public class EWSUtils {
     return service;
   }
 
-  public static void sendEmail(ContentService cs, ExchangeService service, String[] recipients, String subject, boolean bodyTypeHTML,
+  public static void sendEmail(ContentService cs, ExchangeService service, String[] recipients, String[] ccRecipients,
+    String[] bccRecipients, String subject, boolean bodyTypeHTML,
     String body, Long[] attachments)
     throws Exception {
 
@@ -107,6 +108,14 @@ public class EWSUtils {
 
     for (String recipient : recipients) {
       message.getToRecipients().add(recipient);
+    }
+
+    for (String recipient : ccRecipients) {
+      message.getCcRecipients().add(recipient);
+    }
+
+    for (String recipient : bccRecipients) {
+      message.getBccRecipients().add(recipient);
     }
 
     for (Long attachment : attachments) {
