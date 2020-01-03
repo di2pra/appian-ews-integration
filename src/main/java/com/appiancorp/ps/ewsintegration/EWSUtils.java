@@ -1,9 +1,7 @@
 package com.appiancorp.ps.ewsintegration;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 
 import org.apache.log4j.Logger;
 
@@ -120,11 +118,9 @@ public class EWSUtils {
 
     for (Long attachment : attachments) {
 
-      Document doc = (Document) cs.getVersion(attachment, ContentConstants.VERSION_CURRENT);
+      Document doc = cs.download(attachment, ContentConstants.VERSION_CURRENT, false)[0];
 
-      String fileName = cs.getInternalFilename(cs.getVersionId(attachment, ContentConstants.VERSION_CURRENT));
-      File file = new File(fileName);
-      message.getAttachments().addFileAttachment(doc.getDisplayName(), Files.readAllBytes(file.toPath()));
+      message.getAttachments().addFileAttachment(doc.getInternalFilename());
 
     }
 
