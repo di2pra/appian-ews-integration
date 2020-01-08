@@ -104,24 +104,32 @@ public class EWSUtils {
     message.setSubject(subject);
     message.setBody(new MessageBody(bodyTypeHTML ? BodyType.HTML : BodyType.Text, body));
 
-    for (String recipient : recipients) {
-      message.getToRecipients().add(recipient);
+    if (recipients != null) {
+      for (String recipient : recipients) {
+        message.getToRecipients().add(recipient);
+      }
     }
 
-    for (String recipient : ccRecipients) {
-      message.getCcRecipients().add(recipient);
+    if (ccRecipients != null) {
+      for (String recipient : ccRecipients) {
+        message.getCcRecipients().add(recipient);
+      }
     }
 
-    for (String recipient : bccRecipients) {
-      message.getBccRecipients().add(recipient);
+    if (bccRecipients != null) {
+      for (String recipient : bccRecipients) {
+        message.getBccRecipients().add(recipient);
+      }
     }
 
-    for (Long attachment : attachments) {
+    if (attachments != null) {
+      for (Long attachment : attachments) {
 
-      Document doc = cs.download(attachment, ContentConstants.VERSION_CURRENT, false)[0];
+        Document doc = cs.download(attachment, ContentConstants.VERSION_CURRENT, false)[0];
 
-      message.getAttachments().addFileAttachment(doc.getInternalFilename());
+        message.getAttachments().addFileAttachment(doc.getInternalFilename());
 
+      }
     }
 
     message.sendAndSaveCopy();
