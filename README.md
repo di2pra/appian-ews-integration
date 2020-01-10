@@ -13,12 +13,14 @@ Send email using EWS Integration with Appian
 | Proxy URL       | Boolean      | Yes       | URL of the proxy |
 | Proxy Port       | Boolean      | Yes       | Port to connect to the proxy |
 | Proxy Domain      | Boolean      | Yes       | Domain name to use for NTLM authentication |
+| Sender Display Name | Text    | No      | Sender alias (if needed to send on behalf of) |
+| Sender Email | Text    | No      | Sender Email (if needed to send on behalf of) |
 | Recipients | List of Text    | Yes      | List of recipients of the email |
 | CC Recipients         | List of Text      | No | List of CC recipients of the email |
 | BCC Recipients         | List of Text      | No      | List of CCI recipients of the email |
 | Subject         | Text      | No      | The subject of the email |
 | Body Type HTML         | Boolean      | Yes      | Set to TRUE if the body is an html |
-| Body         | Text | No      | Body of the email |
+| Body         | Document | Yes      | Text Document containing the email body text |
 
 ### Node Outputs
 | Output             | Data Type | Description |
