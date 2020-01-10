@@ -1,5 +1,7 @@
 package com.appiancorp.ps.ewsintegration;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import javax.naming.Context;
@@ -7,7 +9,9 @@ import javax.naming.Context;
 import org.apache.log4j.Logger;
 
 import com.appiancorp.suiteapi.common.Name;
+import com.appiancorp.suiteapi.content.ContentConstants;
 import com.appiancorp.suiteapi.content.ContentService;
+import com.appiancorp.suiteapi.knowledge.Document;
 import com.appiancorp.suiteapi.knowledge.DocumentDataType;
 import com.appiancorp.suiteapi.process.exceptions.SmartServiceException;
 import com.appiancorp.suiteapi.process.framework.AppianSmartService;
@@ -22,7 +26,8 @@ import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion
 
 @ConnectivityServices
 @Order({
-  "ServiceUrl", "Domain", "ScsExternalSystemKey", "ConnectedViaProxy", "ProxyURL", "ProxyPort", "ProxyDomain",
+  "ServiceUrl", "Domain", "ScsExternalSystemKey", "ConnectedViaProxy", "ProxyURL", "ProxyPort", "ProxyDomain", "SenderDisplayName",
+  "SenderEmail",
   "Recipients", "CCRecipients", "BCCRecipients", "Subject", "BodyTypeHtml", "Body", "Attachements", "ErrorOccurred", "ErrorMessage" })
 public class SendEmailSmartService extends AppianSmartService {
 
@@ -44,9 +49,11 @@ public class SendEmailSmartService extends AppianSmartService {
   private String proxyURL;
   private Integer proxyPort;
   private String proxyDomain;
+  private String senderDisplayName;
+  private String senderEmail;
   private String subject;
   private boolean bodyTypeHTML = false;
-  private String body;
+  private Long body;
   private String[] recipients;
   private String[] ccRecipients;
   private String[] bccRecipients;
@@ -140,7 +147,12 @@ public class SendEmailSmartService extends AppianSmartService {
 
     try {
 
-      EWSUtils.sendEmail(cs, service, recipients, ccRecipients, bccRecipients, subject, bodyTypeHTML, body, attachments);
+      Document bodyDoc = cs.download(body, ContentConstants.VERSION_CURRENT, false)[0];
+
+      String bodyString = new String(Files.readAllBytes(Paths.get(bodyDoc.getInternalFilename())));
+
+      EWSUtils.sendEmail(cs, service, senderDisplayName, senderEmail, recipients, ccRecipients, bccRecipients, subject, bodyTypeHTML,
+        bodyString, attachments);
 
     } catch (Exception ex) {
       LOG.error("Error sending email through EWS", ex);
@@ -193,6 +205,18 @@ public class SendEmailSmartService extends AppianSmartService {
     this.scsExternalSystemKey = val;
   }
 
+  @Input(required = Required.OPTIONAL)
+  @Name("SenderDisplayName")
+  public void setSenderDisplayName(String val) {
+    this.senderDisplayName = val;
+  }
+
+  @Input(required = Required.OPTIONAL)
+  @Name("SenderEmail")
+  public void setSenderEmail(String val) {
+    this.senderEmail = val;
+  }
+
   @Input(required = Required.ALWAYS)
   @Name("Recipients")
   public void setRecipients(String[] val) {
@@ -225,7 +249,8 @@ public class SendEmailSmartService extends AppianSmartService {
 
   @Input(required = Required.ALWAYS)
   @Name("Body")
-  public void setBody(String val) {
+  @DocumentDataType
+  public void setBody(Long val) {
     this.body = val;
   }
 

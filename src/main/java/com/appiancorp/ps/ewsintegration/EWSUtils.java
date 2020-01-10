@@ -15,6 +15,7 @@ import microsoft.exchange.webservices.data.core.enumeration.property.BodyType;
 import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.credential.WebCredentials;
 import microsoft.exchange.webservices.data.credential.WebProxyCredentials;
+import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
 
 public class EWSUtils {
@@ -95,14 +96,30 @@ public class EWSUtils {
     return service;
   }
 
-  public static void sendEmail(ContentService cs, ExchangeService service, String[] recipients, String[] ccRecipients,
+  public static void sendEmail(ContentService cs, ExchangeService service, String senderDisplayName, String senderEmail,
+    String[] recipients, String[] ccRecipients,
     String[] bccRecipients, String subject, boolean bodyTypeHTML,
     String body, Long[] attachments)
     throws Exception {
 
     EmailMessage message = new EmailMessage(service);
+
+    // set subject
     message.setSubject(subject);
+
+    // set body
     message.setBody(new MessageBody(bodyTypeHTML ? BodyType.HTML : BodyType.Text, body));
+
+    // set sender (to send on behalf of)
+    if (senderEmail != null && !senderEmail.isEmpty()) {
+
+      if (senderDisplayName != null && !senderDisplayName.isEmpty()) {
+        message.setFrom(new EmailAddress(senderDisplayName, senderEmail));
+      } else {
+        message.setFrom(new EmailAddress(senderEmail));
+      }
+
+    }
 
     if (recipients != null) {
       for (String recipient : recipients) {

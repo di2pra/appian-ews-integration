@@ -7,6 +7,5 @@
     <application-version min="19.4" />
   </plugin-info>
   
-  <smart-service name="EWS Send Email" key="SendEMail" class="com.appiancorp.ps.ewsintegration.SendEmailSmartService" />
-
+  <smart-service name="EWS Send Email" key="EWSSendEmail" class="com.appiancorp.ps.ewsintegration.SendEmailSmartService" />
 </appian-plugin>
