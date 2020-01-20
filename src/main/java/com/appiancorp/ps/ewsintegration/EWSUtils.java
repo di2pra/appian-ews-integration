@@ -5,9 +5,7 @@ import java.net.URISyntaxException;
 
 import org.apache.log4j.Logger;
 
-import com.appiancorp.suiteapi.content.ContentConstants;
 import com.appiancorp.suiteapi.content.ContentService;
-import com.appiancorp.suiteapi.knowledge.Document;
 
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.WebProxy;
@@ -142,9 +140,11 @@ public class EWSUtils {
     if (attachments != null) {
       for (Long attachment : attachments) {
 
-        Document doc = cs.download(attachment, ContentConstants.VERSION_CURRENT, false)[0];
+        String filePath = cs.getInternalFilename(attachment);
 
-        message.getAttachments().addFileAttachment(doc.getInternalFilename());
+        String fileName = cs.getExternalFilename(attachment);
+
+        message.getAttachments().addFileAttachment(fileName, filePath);
 
       }
     }

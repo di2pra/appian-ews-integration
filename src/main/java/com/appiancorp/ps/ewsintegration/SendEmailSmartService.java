@@ -9,10 +9,9 @@ import javax.naming.Context;
 import org.apache.log4j.Logger;
 
 import com.appiancorp.suiteapi.common.Name;
-import com.appiancorp.suiteapi.content.ContentConstants;
 import com.appiancorp.suiteapi.content.ContentService;
-import com.appiancorp.suiteapi.knowledge.Document;
 import com.appiancorp.suiteapi.knowledge.DocumentDataType;
+import com.appiancorp.suiteapi.personalization.EmailAddressDataType;
 import com.appiancorp.suiteapi.process.exceptions.SmartServiceException;
 import com.appiancorp.suiteapi.process.framework.AppianSmartService;
 import com.appiancorp.suiteapi.process.framework.Input;
@@ -39,7 +38,6 @@ public class SendEmailSmartService extends AppianSmartService {
 
   private final SecureCredentialsStore scs;
   private final ContentService cs;
-  private final Context ctx;
 
   // inputs
   private String serviceUrl;
@@ -75,7 +73,6 @@ public class SendEmailSmartService extends AppianSmartService {
 
     this.scs = scs;
     this.cs = cs;
-    this.ctx = ctx;
   }
 
   @Override
@@ -147,9 +144,9 @@ public class SendEmailSmartService extends AppianSmartService {
 
     try {
 
-      Document bodyDoc = cs.download(body, ContentConstants.VERSION_CURRENT, false)[0];
+      String bodyFilePath = cs.getInternalFilename(body);
 
-      String bodyString = new String(Files.readAllBytes(Paths.get(bodyDoc.getInternalFilename())));
+      String bodyString = new String(Files.readAllBytes(Paths.get(bodyFilePath)));
 
       EWSUtils.sendEmail(cs, service, senderDisplayName, senderEmail, recipients, ccRecipients, bccRecipients, subject, bodyTypeHTML,
         bodyString, attachments);
@@ -219,18 +216,21 @@ public class SendEmailSmartService extends AppianSmartService {
 
   @Input(required = Required.ALWAYS)
   @Name("Recipients")
+  @EmailAddressDataType
   public void setRecipients(String[] val) {
     this.recipients = val;
   }
 
   @Input(required = Required.OPTIONAL)
   @Name("CCRecipients")
+  @EmailAddressDataType
   public void setCCRecipients(String[] val) {
     this.ccRecipients = val;
   }
 
   @Input(required = Required.OPTIONAL)
   @Name("BCCRecipients")
+  @EmailAddressDataType
   public void setBccRecipients(String[] val) {
     this.bccRecipients = val;
   }
