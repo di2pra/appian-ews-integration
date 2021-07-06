@@ -18,20 +18,22 @@ import com.appiancorp.suiteapi.process.framework.Input;
 import com.appiancorp.suiteapi.process.framework.Order;
 import com.appiancorp.suiteapi.process.framework.Required;
 import com.appiancorp.suiteapi.process.palette.ConnectivityServices;
+import com.appiancorp.suiteapi.process.palette.PaletteInfo;
 import com.appiancorp.suiteapi.security.external.SecureCredentialsStore;
-import com.appiancorp.suiteapi.type.Type;
 
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 
+@Deprecated
+@PaletteInfo(paletteCategory = "#Deprecated#", palette = "#Deprecated#")
 @ConnectivityServices
 @Order({
   "ServiceUrl", "Domain", "ScsExternalSystemKey", "ConnectedViaProxy", "ProxyURL", "ProxyPort", "ProxyDomain", "SenderDisplayName",
   "SenderEmail",
   "Recipients", "CCRecipients", "BCCRecipients", "Subject", "BodyTypeHtml", "Body", "Attachements", "ErrorOccurred", "ErrorMessage" })
-public class SendEmailSmartService extends AppianSmartService {
+public class SendEmailSmartService_v1 extends AppianSmartService {
 
-  private static final Logger LOG = Logger.getLogger(SendEmailSmartService.class);
+  private static final Logger LOG = Logger.getLogger(SendEmailSmartService_v1.class);
   private static final String CRED_USERNAME = "username";
   private static final String CRED_PASSWORD = "password";
   private static final String CRED_PROXY_USERNAME = "proxyUsername";
@@ -57,7 +59,6 @@ public class SendEmailSmartService extends AppianSmartService {
   private String[] ccRecipients;
   private String[] bccRecipients;
   private Long[] attachments;
-  private EmailInlineDoc[] inlineDocs;
 
   // local variables
   private String username;
@@ -70,7 +71,7 @@ public class SendEmailSmartService extends AppianSmartService {
   private boolean errorOccurred;
   private String errorMessage;
 
-  public SendEmailSmartService(SecureCredentialsStore scs, ContentService cs, Context ctx) {
+  public SendEmailSmartService_v1(SecureCredentialsStore scs, ContentService cs, Context ctx) {
     super();
 
     this.scs = scs;
@@ -151,7 +152,7 @@ public class SendEmailSmartService extends AppianSmartService {
       String bodyString = new String(Files.readAllBytes(Paths.get(bodyFilePath)));
 
       EWSUtils.sendEmail(cs, service, senderDisplayName, senderEmail, recipients, ccRecipients, bccRecipients, subject, bodyTypeHTML,
-        bodyString, attachments, inlineDocs);
+        bodyString, attachments);
 
     } catch (Exception ex) {
       LOG.error("Error sending email through EWS", ex);
@@ -261,13 +262,6 @@ public class SendEmailSmartService extends AppianSmartService {
   @DocumentDataType
   public void setAttachments(Long[] val) {
     this.attachments = val;
-  }
-
-  @Input(required = Required.OPTIONAL)
-  @Name("InlineDocs")
-  @Type(name = "EmailInlineDoc", namespace = "urn:com:appian:ps:ewsintegration")
-  public void setInlineDocs(EmailInlineDoc[] val) {
-    this.inlineDocs = val;
   }
 
   @Name("ErrorOccurred")
