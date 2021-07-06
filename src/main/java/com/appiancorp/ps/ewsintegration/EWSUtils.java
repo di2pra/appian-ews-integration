@@ -14,6 +14,7 @@ import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.credential.WebCredentials;
 import microsoft.exchange.webservices.data.credential.WebProxyCredentials;
 import microsoft.exchange.webservices.data.property.complex.EmailAddress;
+import microsoft.exchange.webservices.data.property.complex.FileAttachment;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
 
 public class EWSUtils {
@@ -85,7 +86,7 @@ public class EWSUtils {
   public static void sendEmail(ContentService cs, ExchangeService service, String senderDisplayName, String senderEmail,
     String[] recipients, String[] ccRecipients,
     String[] bccRecipients, String subject, boolean bodyTypeHTML,
-    String body, Long[] attachments)
+    String body, Long[] attachments, EmailInlineDoc[] inlineDocs)
     throws Exception {
 
     EmailMessage message = new EmailMessage(service);
@@ -131,6 +132,7 @@ public class EWSUtils {
       }
     }
 
+    // process attachments
     if (attachments != null) {
       for (Long attachment : attachments) {
 
@@ -139,6 +141,21 @@ public class EWSUtils {
         String fileName = cs.getExternalFilename(attachment);
 
         message.getAttachments().addFileAttachment(fileName, filePath);
+
+      }
+    }
+
+    // process inline Docs
+    if (inlineDocs != null) {
+      for (EmailInlineDoc inlineDoc : inlineDocs) {
+
+        String filePath = cs.getInternalFilename(inlineDoc.getDocId());
+
+        String fileName = cs.getExternalFilename(inlineDoc.getDocId());
+
+        FileAttachment fileAttachment = message.getAttachments().addFileAttachment(fileName, filePath);
+        fileAttachment.setContentId(inlineDoc.getContentId());
+        fileAttachment.setIsInline(true);
 
       }
     }
