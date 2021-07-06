@@ -49,18 +49,6 @@ public class EWSUtils {
 
   public ExchangeService authService(ExchangeService service) throws URISyntaxException {
 
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Starting to poll for new email from " + username + " @ " + serviceUrl);
-      LOG.debug("Passed Parameters: ");
-      LOG.debug("serviceUrl: " + serviceUrl);
-      LOG.debug("domain: " + domain);
-      LOG.debug("username: " + username);
-      LOG.debug("proxyURL: " + proxyURL);
-      LOG.debug("proxyPort: " + proxyPort);
-      LOG.debug("proxyDomain: " + proxyDomain);
-      LOG.debug("proxyUsername: " + proxyUsername);
-    }
-
     WebCredentials credentials;
 
     if (domain != null && !"".equalsIgnoreCase(domain)) {
@@ -121,19 +109,25 @@ public class EWSUtils {
 
     if (recipients != null) {
       for (String recipient : recipients) {
-        message.getToRecipients().add(recipient);
+        if (!"".equalsIgnoreCase(recipient)) {
+          message.getToRecipients().add(recipient);
+        }
       }
     }
 
     if (ccRecipients != null) {
       for (String recipient : ccRecipients) {
-        message.getCcRecipients().add(recipient);
+        if (!"".equalsIgnoreCase(recipient)) {
+          message.getCcRecipients().add(recipient);
+        }
       }
     }
 
     if (bccRecipients != null) {
       for (String recipient : bccRecipients) {
-        message.getBccRecipients().add(recipient);
+        if (!"".equalsIgnoreCase(recipient)) {
+          message.getBccRecipients().add(recipient);
+        }
       }
     }
 

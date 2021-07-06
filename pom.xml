@@ -3,7 +3,7 @@
 
   <groupId>com.appiancorp.ps</groupId>
   <artifactId>ewsintegration</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
   <packaging>jar</packaging>
   <name>Appian EWS Integration</name>
   <description>Send email using EWS Integration with Appian</description>
